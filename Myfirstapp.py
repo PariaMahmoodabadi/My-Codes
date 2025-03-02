@@ -16,7 +16,6 @@ def Paria():
 
 
 
-
 def Shahrad():
     db2 = mc.connect(
     host ="localhost",
