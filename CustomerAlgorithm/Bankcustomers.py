@@ -59,7 +59,7 @@ print(df.describe())
 
 # Splitting Data
 X = df  # Features
-y = bank_marketing.data.targets  # Target variable
+y = bank_marketing.data.targets 
 
 # If y is a DataFrame, convert it to a Series
 if isinstance(y, pd.DataFrame):
