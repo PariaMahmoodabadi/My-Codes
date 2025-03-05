@@ -58,7 +58,7 @@ print(df.info())
 print(df.describe())
 
 # Splitting Data
-X = df  # Features
+X = df  
 y = bank_marketing.data.targets 
 
 # If y is a DataFrame, convert it to a Series
