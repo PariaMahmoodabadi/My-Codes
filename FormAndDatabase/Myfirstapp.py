@@ -49,36 +49,71 @@ def audio3():
     
 
 def dicegame():
+    # Create game window
     dice = Toplevel(MyProgram)
     dice.geometry("800x600")
     dice.configure(background="#f4f3d2")
     dice.title("Dice game")
 
-    def click():
-        for i in range (4):
-            dice1=random.randint(1,6)
-            dice2=random.randint(1,6)
-            if  dice1==dice2:
-                messagebox.showinfo("well done!","Yay, pass!")
-                formShahrad()
-                dice.destroy()
-                audio3()
-                break
-            elif not dice1==dice2 and i==3:
-                 
-                 messagebox.showinfo("not passed!","But let's go in!")
-                 
-                 formShahrad()
-                 dice.destroy()
-                 audio2()
-                 break
-            else:
-                messagebox.showinfo("Result","dice 1 is : "+str(dice1)+" dice 2 is : "+str(dice2)+" Oh no! "+"Do it again!")
-                audio1()
+    attempts = 0  # Track number of attempts
+    max_attempts = 3  # Maximum allowed attempts
 
-    Label(dice, text="Welcome to the game!!", bg="white", fg="black", font="Arial 30 bold").place(x=180, y=250)
-    Button(dice,text="Let's roll it!",command=click,font="Arial 10 bold").place(x=300, y=350)
-    Button(dice, text="exit form", command=dice.destroy,font="Arial 10 bold").place(x=400, y=350)
+    def roll_dice():
+        nonlocal attempts  # Modify the outer variable
+        attempts += 1  # Increment attempt counter
+        
+        # Roll two dice
+        dice1 = random.randint(1,6)
+        dice2 = random.randint(1,6)
+        
+        # Winning condition (matching dice)
+        if dice1 == dice2:
+            messagebox.showinfo("Well done!", f"Yay, pass!\nDice 1: {dice1}, Dice 2: {dice2}")
+            audio3()  # Play success sound
+            dice.destroy()  # Close game window
+            formShahrad()  # Open Shahrad's form
+            return
+        
+        # Final attempt condition
+        elif attempts >= max_attempts:
+            messagebox.showinfo("Game Over", 
+                f"Final attempt!\nDice 1: {dice1}, Dice 2: {dice2}\nBut let's go in!")
+            audio2()  # Play game over sound
+            dice.destroy()
+            formShahrad()  # Open form even after losing
+            return
+        
+        # Intermediate attempt (ask to continue)
+        else:
+            retry = messagebox.askyesno(
+                "Try Again", 
+                f"Attempt {attempts}/{max_attempts}\nDice 1: {dice1}, Dice 2: {dice2}\nOh no! Try again?"
+            )
+            if retry:
+                audio1()  # Play dice roll sound
+            else:
+                dice.destroy()  # Close game if user declines
+
+    # Game UI
+    Label(dice, 
+        text="Welcome to the game!!", 
+        bg="white", 
+        fg="black", 
+        font="Arial 30 bold"
+    ).place(x=180, y=250)
+    
+    Button(dice, 
+        text="Let's roll it!", 
+        command=roll_dice,  # Trigger dice roll
+        font="Arial 10 bold"
+    ).place(x=300, y=350)
+    
+    Button(dice, 
+        text="Exit", 
+        command=dice.destroy,  # Close window
+        font="Arial 10 bold"
+    ).place(x=400, y=350)
+    
 
 def check_credentials(username, password):
     try:
@@ -128,215 +163,166 @@ def password():
     b=Button(form1, text="submit", command=getting).place(x=200, y=250)
     b1=Button(form1, text="exit form", command=form1.destroy).place(x=250, y=250)
 
-def formParia():
-    formP = Toplevel(MyProgram)
-    formP.geometry("700x700")
-    formP.configure(background="#f4f3d2")
-    formP.title("Form")
+#creating forms
+class UserForm:
+    def __init__(self, master, db_name, table_name):
+        
+        self.master = master  # Parent window
+        self.db_name = db_name  # Database name (e.g., 'formParia')
+        self.table_name = table_name  # Table name (e.g., 'resultParia')
+        self.create_form()  # Build the form UI
+    
+    def create_form(self):
+       
+        # Form window setup
+        self.form = Toplevel(self.master)
+        self.form.geometry("700x700")
+        self.form.configure(background="#f4f3d2")
+        self.form.title("Form")
 
-    l=Label(formP, text=" Form ", font="Arial 20 bold").place(x=300, y=10)
-    l1=Label(formP, text="Enter your first name: ").place(x=120, y=70)
-    l2=Label(formP, text="Enter your last name: ").place(x=120, y=110)
-    l3=Label(formP, text="Enter your phone num.: ").place(x=120, y=150)
-    l4=Label(formP, text="Preferences", font="Arial 20").place(x=180, y=400)
-    l5=Label(formP, text="Gender", font="Arial 20").place(x=180, y=200)
-    l6=Label(formP, text="Status", font="Arial 20").place(x=190, y=300)
-    global imagecor
+        # Labels
+        Label(self.form, text=" Form ", font="Arial 20 bold").place(x=300, y=10)
+        Label(self.form, text="Enter your first name: ").place(x=120, y=70)
+        Label(self.form, text="Enter your last name: ").place(x=120, y=110)
+        Label(self.form, text="Enter your phone num.: ").place(x=120, y=150)
+        Label(self.form, text="Preferences", font="Arial 20").place(x=180, y=400)
+        Label(self.form, text="Gender", font="Arial 20").place(x=180, y=200)
+        Label(self.form, text="Status", font="Arial 20").place(x=190, y=300)
 
-    imagecor=PhotoImage(file="test2.png")
-    corner=Label(formP,image=imagecor).place(x=450,y=450)
-    first_name = StringVar()
-    last_name = StringVar()
-    phone_num = StringVar()
+        # Image
+        global imagecor
+        imagecor = PhotoImage(file="test2.png")
+        Label(self.form, image=imagecor).place(x=450, y=450)
 
-    e1=Entry(formP, textvariable=first_name).place(x=250, y=70)
-    e2=Entry(formP, textvariable=last_name).place(x=250, y=110)
-    e3=Entry(formP, textvariable=phone_num).place(x=250, y=150)
+        # Form variables
+        self.first_name = StringVar()
+        self.last_name = StringVar()
+        self.phone_num = StringVar()
+        self.gender = StringVar(value="null")
+        self.marital_status = StringVar(value="null")
+        self.fav = IntVar()  # Sports
+        self.fav1 = IntVar()  # Music
+        self.fav2 = IntVar()  # Cooking
+        self.fav3 = IntVar()  # Books
 
-    gender = StringVar(value="null")
-    marital_status = StringVar(value="null")
-    fav = IntVar()
-    fav1 = IntVar()
-    fav2 = IntVar()
-    fav3 = IntVar()
+        # Entry fields
+        Entry(self.form, textvariable=self.first_name).place(x=250, y=70)
+        Entry(self.form, textvariable=self.last_name).place(x=250, y=110)
+        Entry(self.form, textvariable=self.phone_num).place(x=250, y=150)
 
-    Radiobutton(formP, text="Male", variable=gender, value="Male").place(x=200, y=230)
-    Radiobutton(formP, text="Female", variable=gender, value="Female").place(x=200, y=250)
-    Radiobutton(formP, text="Single", variable=marital_status, value="Single").place(x=200, y=330)
-    Radiobutton(formP, text="Married", variable=marital_status, value="Married").place(x=200, y=350)
-    Checkbutton(formP, text="varzesh", variable=fav).place(x=200, y=430)
-    Checkbutton(formP, text="moosighi", variable=fav1).place(x=200, y=450)
-    Checkbutton(formP, text="ashpazi", variable=fav2).place(x=200, y=470)
-    Checkbutton(formP, text="ketab", variable=fav3).place(x=200, y=490)
+        # Radio buttons
+        Radiobutton(self.form, text="Male", variable=self.gender, value="Male").place(x=200, y=230)
+        Radiobutton(self.form, text="Female", variable=self.gender, value="Female").place(x=200, y=250)
+        Radiobutton(self.form, text="Single", variable=self.marital_status, value="Single").place(x=200, y=330)
+        Radiobutton(self.form, text="Married", variable=self.marital_status, value="Married").place(x=200, y=350)
 
-    def submit_formP():
+        # Checkboxes
+        Checkbutton(self.form, text="Sports", variable=self.fav).place(x=200, y=430)
+        Checkbutton(self.form, text="Music", variable=self.fav1).place(x=200, y=450)
+        Checkbutton(self.form, text="Cooking", variable=self.fav2).place(x=200, y=470)
+        Checkbutton(self.form, text="Books", variable=self.fav3).place(x=200, y=490)
 
+        # Action buttons
+        Button(self.form, text="Submit", command=self.submit_form).place(x=250, y=540)
+        Button(self.form, text="exit form", command=self.form.destroy).place(x=300, y=540)
+    
+    #submitting data into database
+    def submit_form(self):
+        
         try:
-            db3=Paria()
-            cursor5 = db3.cursor()
+            # Database connection
+            db = mc.connect(
+                host="localhost",
+                user="root",
+                passwd="1234",
+                database=self.db_name
+            )
+            cursor = db.cursor()
+            
+            # Process checkbox selections
             favorites = []
-            if fav.get():
-                favorites.append('varzesh')
-            if fav1.get():
-                favorites.append('moosighi')
-            if fav2.get():
-                favorites.append('ashpazi')
-            if fav3.get():
-                favorites.append('ketab')
+            if self.fav.get(): favorites.append('Sports')
+            if self.fav1.get(): favorites.append('Music')
+            if self.fav2.get(): favorites.append('Cooking')
+            if self.fav3.get(): favorites.append('Books')
             
             favorites_str = ', '.join(favorites)
             
-            query = "INSERT INTO resultParia (first_name, last_name, phone_num, gender, marital_status, favorites) VALUES (%s, %s, %s, %s, %s, %s)"
-            values = (first_name.get(), last_name.get(), phone_num.get(), gender.get(), marital_status.get(), favorites_str)
-            cursor5.execute(query, values)
-            db3.commit() 
+            # Database insertion
+            query = f"""
+            INSERT INTO {self.table_name} 
+            (first_name, last_name, phone_num, gender, marital_status, favorites) 
+            VALUES (%s, %s, %s, %s, %s, %s)
+            """
+            values = (
+                self.first_name.get(),
+                self.last_name.get(),
+                self.phone_num.get(),
+                self.gender.get(),
+                self.marital_status.get(),
+                favorites_str
+            )
+            cursor.execute(query, values)
+            db.commit()
             messagebox.showinfo("Success", "Data inserted successfully")
-        except:
-            messagebox.showinfo("Error", f"Error occurred: '{str(e)}'")
+            
+            # Generate output image
+            self.generate_output_image()
+            
+        except Exception as e:
+            messagebox.showerror("Error", f"Error occurred: {str(e)}")
         finally:
-            cursor5.close()
-            db3.close()
-
+            # Clean up resources
+            if 'cursor' in locals(): cursor.close()
+            if 'db' in locals() and db.is_connected(): db.close()
+    
+    def generate_output_image(self):
+        """Generate a summary image of the form data"""
         info = (
-            f"First Name: {first_name.get()}\n"
-            f"Last Name: {last_name.get()}\n"
-            f"Phone Number: {phone_num.get()}\n"
-            f"Gender: {gender.get()}\n"
-            f"Marital Status: {marital_status.get()}\n"
+            f"First Name: {self.first_name.get()}\n"
+            f"Last Name: {self.last_name.get()}\n"
+            f"Phone Number: {self.phone_num.get()}\n"
+            f"Gender: {self.gender.get()}\n"
+            f"Marital Status: {self.marital_status.get()}\n"
             f"Preferences:\n"
-            f"  - Varzesh: {'Yes' if fav.get() else 'No'}\n"
-            f"  - Moosighi: {'Yes' if fav1.get() else 'No'}\n"
-            f"  - Ashpazi: {'Yes' if fav2.get() else 'No'}\n"
-            f"  - Ketab: {'Yes' if fav3.get() else 'No'}"
+            f"  - Sports: {'Yes' if self.fav.get() else 'No'}\n"
+            f"  - Music: {'Yes' if self.fav1.get() else 'No'}\n"
+            f"  - Cooking: {'Yes' if self.fav2.get() else 'No'}\n"
+            f"  - Books: {'Yes' if self.fav3.get() else 'No'}"
         )
         
+        # Image processing
         backgr = Image.open("back.png")
         backgr = backgr.convert('RGBA')  
         layer = Image.new('RGBA', backgr.size, (255, 255, 255, 0))
         draw = ImageDraw.Draw(layer)
+        
+        # Text positioning
         font = ImageFont.truetype("arial.ttf", 250)
-        bbox=draw.textbbox((0,0),info, font=font)
-        textwidth=bbox[2]-bbox[0]
-        texthight=bbox[3]-bbox[1]
-        width , hight= backgr.size
+        bbox = draw.textbbox((0,0), info, font=font)
+        textwidth = bbox[2] - bbox[0]
+        texthight = bbox[3] - bbox[1]
+        width, hight = backgr.size
     
-        x=(width-textwidth)//2
-        y=(hight-texthight)//2
+        x = (width - textwidth) // 2
+        y = (hight - texthight) // 2
+        
+        # Draw text and save
         draw.text((x, y), info, fill=(0, 0, 0, 255), font=font)
-
         composite = Image.alpha_composite(backgr, layer)
         composite = composite.convert('RGB')
         composite.show()
         composite.save("form_output.png")
-    
-    Button(formP, text="Submit", command=submit_formP).place(x=250, y=540)
-    Button(formP, text="exit form", command=formP.destroy).place(x=300, y=540)
-
-def formShahrad():
-    formShahrad = Toplevel(MyProgram)
-    formShahrad.geometry("700x700")
-    formShahrad.configure(background="#f4f3d2")
-    formShahrad.title("Form")
-
-    l=Label(formShahrad, text=" Form ", font="Arial 20 bold").place(x=300, y=10)
-    Label(formShahrad, text="Enter your first name: ").place(x=120, y=70)
-    Label(formShahrad, text="Enter your last name: ").place(x=120, y=110)
-    Label(formShahrad, text="Enter your phone num.: ").place(x=120, y=150)
-    Label(formShahrad, text="Preferences", font="Arial 20").place(x=180, y=400)
-    Label(formShahrad, text="Gender", font="Arial 20").place(x=180, y=200)
-    Label(formShahrad, text="Status", font="Arial 20").place(x=190, y=300)
-    global imagecor
-
-    imagecor=PhotoImage(file="test2.png")
-    corner=Label(formShahrad,image=imagecor).place(x=450,y=450)
-    first_name = StringVar()
-    last_name = StringVar()
-    phone_num = StringVar()
-
-    Entry(formShahrad, textvariable=first_name).place(x=250, y=70)
-    Entry(formShahrad, textvariable=last_name).place(x=250, y=110)
-    Entry(formShahrad, textvariable=phone_num).place(x=250, y=150)
-
-    gender = StringVar(value="null")
-    marital_status = StringVar(value="null")
-    fav = IntVar()
-    fav1 = IntVar()
-    fav2 = IntVar()
-    fav3 = IntVar()
-
-    Radiobutton(formShahrad, text="Male", variable=gender, value="Male").place(x=200, y=230)
-    Radiobutton(formShahrad, text="Female", variable=gender, value="Female").place(x=200, y=250)
-    Radiobutton(formShahrad, text="Single", variable=marital_status, value="Single").place(x=200, y=330)
-    Radiobutton(formShahrad, text="Married", variable=marital_status, value="Married").place(x=200, y=350)
-    Checkbutton(formShahrad, text="varzesh", variable=fav).place(x=200, y=430)
-    Checkbutton(formShahrad, text="moosighi", variable=fav1).place(x=200, y=450)
-    Checkbutton(formShahrad, text="ashpazi", variable=fav2).place(x=200, y=470)
-    Checkbutton(formShahrad, text="ketab", variable=fav3).place(x=200, y=490)
-
-    def submit_formS():
-        
-        try:
-            db4=Shahrad()
-            cursor4 = db4.cursor()
-            favorites = []
-            if fav.get():
-                favorites.append('varzesh')
-            if fav1.get():
-                favorites.append('moosighi')
-            if fav2.get():
-                favorites.append('ashpazi')
-            if fav3.get():
-                favorites.append('ketab')
-            
-            favorites_str = ', '.join(favorites)
-            
-            query = "INSERT INTO resultShahrad (first_name, last_name, phone_num, gender, marital_status, favorites) VALUES (%s, %s, %s, %s, %s, %s)"
-            values = (first_name.get(), last_name.get(), phone_num.get(), gender.get(), marital_status.get(), favorites_str)
-            cursor4.execute(query, values)
-            db4.commit() 
-            messagebox.showinfo("Success", "Data inserted successfully")
-        except mc.Error as e:
-            messagebox.showinfo("Error", f"Error occurred: '{str(e)}'")
-        finally:
-            cursor4.close()
-            db4.close()
-
-        info = (
-            f"First Name: {first_name.get()}\n"
-            f"Last Name: {last_name.get()}\n"
-            f"Phone Number: {phone_num.get()}\n"
-            f"Gender: {gender.get()}\n"
-            f"Marital Status: {marital_status.get()}\n"
-            f"Preferences:\n"
-            f"  - Varzesh: {'Yes' if fav.get() else 'No'}\n"
-            f"  - Moosighi: {'Yes' if fav1.get() else 'No'}\n"
-            f"  - Ashpazi: {'Yes' if fav2.get() else 'No'}\n"
-            f"  - Ketab: {'Yes' if fav3.get() else 'No'}"
-        )
-        
-        backgr = Image.open("back.png")
-        backgr = backgr.convert('RGBA')  
-        layer = Image.new('RGBA', backgr.size, (255, 255, 255, 0))
-        draw = ImageDraw.Draw(layer)
-        font = ImageFont.truetype("arial.ttf", 250)
-        bbox=draw.textbbox((0,0),info, font=font)
-        textwidth=bbox[2]-bbox[0]
-        texthight=bbox[3]-bbox[1]
-        width , hight= backgr.size
-    
-        x=(width-textwidth)//2
-        y=(hight-texthight)//2
-        draw.text((x, y), info, fill=(0, 0, 0, 255), font=font)
-
-        composite = Image.alpha_composite(backgr, layer)
-        composite = composite.convert('RGB')
-        composite.show()
-        composite.save("form_output.png")
-    
-    Button(formShahrad, text="Submit", command=submit_formS).place(x=250, y=540)
-    Button(formShahrad, text="exit form", command=formShahrad.destroy).place(x=300, y=540)
-
 Label(MyProgram, text="Welcome to my App", bg="white", fg="black", font="Arial 30 bold").place(x=180, y=250)
 Button(MyProgram, text="Enter", command=password, font="Arial 15 bold").place(x=350, y=350)
+
+def formParia():
+    """Create form for Paria"""
+    UserForm(MyProgram, "formParia", "resultParia")
+
+def formShahrad():
+    """Create form for Shahrad"""
+    UserForm(MyProgram, "formShahrad", "resultShahrad")
+
 
 MyProgram.mainloop()
